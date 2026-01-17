@@ -1,0 +1,8 @@
+node_modules
+.dist
+/dist
+.vite
+coverage
+.DS_Store
+android
+ios
