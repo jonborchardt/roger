@@ -12,7 +12,8 @@
     "lint": "eslint .",
     "cap:sync": "capacitor sync",
     "cap:open:ios": "capacitor open ios",
-    "cap:open:android": "capacitor open android"
+    "cap:open:android": "capacitor open android",
+    "cap:init": "npx cap init roger com.jonborchardt.roger --web-dir dist"
   },
   "dependencies": {
     "pixi.js": "^8.2.6",

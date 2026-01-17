@@ -4,7 +4,7 @@ import { VitePWA } from 'vite-plugin-pwa';
 
 // For GitHub Pages deployments, set VITE_BASE to '/<repo>/' (for example: '/my-repo/')
 // or set `base` below directly.
-const base = process.env.VITE_BASE ?? '/REPO_NAME/';
+const base = process.env.VITE_BASE ?? '/roger/';
 
 export default defineConfig({
   base,
