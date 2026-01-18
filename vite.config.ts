@@ -52,6 +52,14 @@ export default defineConfig({
       },
     }),
   ],
+   build: {
+    target: 'es2022',
+    rollupOptions: {
+      output: {
+        format: 'es'
+      }
+    }
+  },
   test: {
     environment: 'jsdom',
     setupFiles: ['./tests/setup.ts'],
