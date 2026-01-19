@@ -96,6 +96,7 @@ export function createRecorderController(opts: RecorderOptions): RecorderControl
       mediaRecorder.onstop = () => {
         const blob = new Blob(chunks, { type: 'audio/webm' });
         recordedBlob = blob; // Store for potential Whisper fallback
+        onDebug?.(`BLOB:${blob.size}b`);
         if (audioUrl) {
           URL.revokeObjectURL(audioUrl);
         }
@@ -279,6 +280,9 @@ export function createRecorderController(opts: RecorderOptions): RecorderControl
 
     onDebug?.(`STOP:${fullTranscript ? 'HAS_TEXT' : 'EMPTY'}`);
 
+    // Debug: Check Whisper trigger conditions
+    onDebug?.(`CHK:T=${!!fullTranscript} R=${recognitionWorked} B=${!!recordedBlob}`);
+
     // If Speech Recognition didn't work but we have audio, try Whisper
     if (!fullTranscript && !recognitionWorked && recordedBlob) {
       onDebug?.('TRY_WHISPER');
@@ -295,6 +299,8 @@ export function createRecorderController(opts: RecorderOptions): RecorderControl
         onDebug?.(`WHISPER_ERR:${err instanceof Error ? err.message : 'unknown'}`);
         onTranscriptChange?.('AI transcription failed - try again');
       }
+    } else {
+      onDebug?.('SKIP_WHISPER');
     }
 
     // Process the transcript through the game engine
