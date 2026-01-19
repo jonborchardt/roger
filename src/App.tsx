@@ -147,15 +147,9 @@ export default function App() {
       stopDot = makeDot(20, 0xff0000);  // Red: stop recording
       speakDot = makeDot(20, 0x00ffff); // Cyan: speak last response
 
-      // TEST: Raw audio recording dots
-      const testRecDot = makeDot(15, 0xff00ff); // Purple: start test recording
-      const testPlayDot = makeDot(15, 0xffff00); // Yellow: play test recording
-
       stage.addChild(startDot);
       stage.addChild(stopDot);
       stage.addChild(speakDot);
-      stage.addChild(testRecDot);
-      stage.addChild(testPlayDot);
 
       // Create recorder controller
       const recorder = createRecorderController({
@@ -193,73 +187,6 @@ export default function App() {
         recorder.speakLastResponse();
       });
 
-      // TEST: Raw audio recording (no speech recognition)
-      let testStream: MediaStream | null = null;
-      let testRecorder: MediaRecorder | null = null;
-      let testChunks: Blob[] = [];
-      let testAudioUrl: string | null = null;
-
-      testRecDot.on('pointertap', async () => {
-        addEvent('TEST_REC_START');
-        try {
-          testStream = await navigator.mediaDevices.getUserMedia({
-            audio: {
-              echoCancellation: true,
-              noiseSuppression: true,
-              autoGainControl: true,
-            }
-          });
-          addEvent('TEST_MIC_OK');
-
-          testChunks = [];
-          testRecorder = new MediaRecorder(testStream);
-
-          testRecorder.ondataavailable = (e) => {
-            if (e.data.size > 0) {
-              testChunks.push(e.data);
-            }
-          };
-
-          testRecorder.onstop = () => {
-            const blob = new Blob(testChunks, { type: 'audio/webm' });
-            if (testAudioUrl) URL.revokeObjectURL(testAudioUrl);
-            testAudioUrl = URL.createObjectURL(blob);
-            addEvent(`TEST_SAVED:${blob.size}b`);
-
-            // Stop stream
-            if (testStream) {
-              testStream.getTracks().forEach(t => t.stop());
-            }
-          };
-
-          testRecorder.start();
-          addEvent('TEST_RECORDING...');
-
-          // Auto-stop after 3 seconds
-          setTimeout(() => {
-            if (testRecorder && testRecorder.state === 'recording') {
-              testRecorder.stop();
-              addEvent('TEST_REC_STOP');
-            }
-          }, 3000);
-
-        } catch (err) {
-          addEvent(`TEST_ERR:${err instanceof Error ? err.message : 'unknown'}`);
-        }
-      });
-
-      testPlayDot.on('pointertap', () => {
-        if (testAudioUrl) {
-          addEvent('TEST_PLAY');
-          const audio = new Audio(testAudioUrl);
-          audio.play().catch(e => {
-            addEvent(`PLAY_ERR:${e.message}`);
-          });
-        } else {
-          addEvent('NO_AUDIO_YET');
-        }
-      });
-
       // Layout function
       function updateLayout() {
         const w = app.renderer.width;
@@ -279,11 +206,6 @@ export default function App() {
         startDot.position.set(w / 2 - 60, dotY);
         stopDot.position.set(w / 2, dotY);
         speakDot.position.set(w / 2 + 60, dotY);
-
-        // Test buttons on left side
-        const testY = h - 40;
-        testRecDot.position.set(30, testY);
-        testPlayDot.position.set(60, testY);
       }
 
       updateLayout();

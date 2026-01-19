@@ -47,6 +47,7 @@ export function createRecorderController(opts: RecorderOptions): RecorderControl
   async function start() {
     if (state !== 'idle') {
       console.warn('[AUDIO] Already recording or recorded');
+      onDebug?.('ERR:ALREADY_REC');
       onTranscriptChange?.('Already recording');
       return;
     }
@@ -56,6 +57,7 @@ export function createRecorderController(opts: RecorderOptions): RecorderControl
     recordedBlob = null;
     transcript = '';
     interimTranscript = '';
+    isProcessing = false;
 
     onDebug?.('1:BTN_CLICK');
     onTranscriptChange?.('Requesting microphone...');
@@ -305,15 +307,35 @@ export function createRecorderController(opts: RecorderOptions): RecorderControl
     // If Speech Recognition didn't work but we have audio, try Whisper
     if (!fullTranscript && !recognitionWorked && recordedBlob) {
       onDebug?.('TRY_WHISPER');
-      onTranscriptChange?.('Using browser AI to transcribe...');
+      onTranscriptChange?.('Loading AI model... (first time only)');
 
       try {
+        // Transcribe using Whisper (will download model on first use)
         fullTranscript = await transcribeAudio(recordedBlob);
-        onDebug?.(`WHISPER:"${fullTranscript.substring(0,20)}"`);
-        onTranscriptChange?.(`You said: ${fullTranscript}`);
+
+        if (fullTranscript) {
+          onDebug?.(`WHISPER:"${fullTranscript.substring(0,20)}"`);
+          onTranscriptChange?.(`You said: ${fullTranscript}`);
+        } else {
+          onDebug?.('WHISPER_EMPTY');
+          onTranscriptChange?.('No speech detected - try speaking louder');
+        }
       } catch (err) {
-        onDebug?.(`WHISPER_ERR:${err instanceof Error ? err.message : 'unknown'}`);
-        onTranscriptChange?.('AI transcription failed - try again');
+        const errorMsg = err instanceof Error ? err.message : 'unknown';
+        onDebug?.(`WHISPER_ERR:${errorMsg.substring(0,30)}`);
+
+        // Provide user-friendly error messages
+        if (errorMsg.includes('timeout')) {
+          onTranscriptChange?.('Transcription took too long - try again');
+        } else if (errorMsg.includes('decode')) {
+          onTranscriptChange?.('Audio format error - try again');
+        } else if (errorMsg.includes('empty')) {
+          onTranscriptChange?.('No audio recorded - speak louder');
+        } else {
+          onTranscriptChange?.('AI transcription failed - try again');
+        }
+
+        console.error('[Audio] Whisper transcription error:', err);
       }
     } else {
       onDebug?.('SKIP_WHISPER');
