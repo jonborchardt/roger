@@ -265,9 +265,28 @@ export function createRecorderController(opts: RecorderOptions): RecorderControl
       recognition = null;
     }
 
-    // Stop recording
+    // Stop recording and wait for blob to be ready
     if (mediaRecorder && mediaRecorder.state !== 'inactive') {
-      mediaRecorder.stop();
+      // Wait for MediaRecorder to finish and save the blob
+      await new Promise<void>((resolve) => {
+        if (!mediaRecorder) {
+          resolve();
+          return;
+        }
+
+        const currentRecorder = mediaRecorder;
+        const originalOnStop = currentRecorder.onstop;
+
+        currentRecorder.onstop = (ev) => {
+          // Call original handler to save blob
+          if (originalOnStop) originalOnStop.call(currentRecorder, ev);
+          resolve();
+        };
+
+        currentRecorder.stop();
+      });
+
+      onDebug?.('REC_STOPPED');
     }
 
     // Release stream
@@ -289,9 +308,6 @@ export function createRecorderController(opts: RecorderOptions): RecorderControl
       onTranscriptChange?.('Using browser AI to transcribe...');
 
       try {
-        // Wait a bit for MediaRecorder to finish saving the blob
-        await new Promise(resolve => setTimeout(resolve, 100));
-
         fullTranscript = await transcribeAudio(recordedBlob);
         onDebug?.(`WHISPER:"${fullTranscript.substring(0,20)}"`);
         onTranscriptChange?.(`You said: ${fullTranscript}`);
