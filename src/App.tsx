@@ -172,13 +172,29 @@ export default function App() {
         },
       });
 
-      // Wire up single toggle button
-      recordButton.on('pointertap', () => {
+      // Wire up single toggle button with debouncing
+      let isProcessingClick = false;
+
+      recordButton.on('pointertap', async () => {
+        // Ignore clicks while processing
+        if (isProcessingClick) {
+          addEvent('CLICK_IGNORED');
+          return;
+        }
+
         const state = recorder.getState();
         if (state === 'idle') {
-          recorder.start();
+          isProcessingClick = true;
+          recordButton.interactive = false; // Disable during recording
+          await recorder.start();
+          recordButton.interactive = true; // Re-enable after start completes
+          isProcessingClick = false;
         } else if (state === 'recording') {
-          recorder.stop();
+          isProcessingClick = true;
+          recordButton.interactive = false; // Disable during processing
+          await recorder.stop();
+          // Button will re-enable when state returns to idle
+          isProcessingClick = false;
         }
       });
 
@@ -187,20 +203,20 @@ export default function App() {
         const w = app.renderer.width;
         const h = app.renderer.height;
 
-        // Scale background to cover screen while maintaining aspect ratio
+        // Scale background to cover entire screen (like CSS background-size: cover)
         const bgAspect = bgTexture.width / bgTexture.height;
         const screenAspect = w / h;
 
+        let scale = 1;
         if (screenAspect > bgAspect) {
-          // Screen is wider than background - fit to width
-          bg.width = w;
-          bg.height = w / bgAspect;
+          // Screen is wider - scale to width
+          scale = w / bgTexture.width;
         } else {
-          // Screen is taller than background - fit to height
-          bg.height = h;
-          bg.width = h * bgAspect;
+          // Screen is taller - scale to height
+          scale = h / bgTexture.height;
         }
 
+        bg.scale.set(scale, scale);
         bg.position.set(w / 2, h / 2);
 
         const topMargin = 20;
@@ -223,14 +239,27 @@ export default function App() {
         const t = Date.now() * 0.001;
         recordButton.rotation = Math.sin(t) * 0.1;
 
-        // Update button color based on state
+        // Update button color and interactivity based on state
         const state: RecordingState = recorder.getState();
         if (state === 'idle') {
-          // Green microphone icon when idle
+          // Green microphone icon when idle - ready to record
           repaintDot(recordButton, 30, 0x00ff00);
+          if (!isProcessingClick) {
+            recordButton.interactive = true;
+            recordButton.alpha = 1.0;
+          }
         } else if (state === 'recording') {
           // Red stop icon when recording
           repaintDot(recordButton, 30, 0xff0000);
+          if (!isProcessingClick) {
+            recordButton.interactive = true;
+            recordButton.alpha = 1.0;
+          }
+        }
+
+        // Show disabled state when processing
+        if (!recordButton.interactive) {
+          recordButton.alpha = 0.5;
         }
       });
 
