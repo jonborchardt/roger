@@ -1,0 +1,41 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cat:*)",
+      "Bash(npm install:*)",
+      "Bash(npm run dev:*)",
+      "Bash(curl:*)",
+      "Bash(ls:*)",
+      "Bash(node convert-bmps.js:*)",
+      "Bash(grep:*)",
+      "Bash(node -e:*)",
+      "Bash(node create-control-map.js:*)",
+      "Bash(node tools/create-control-map.js:*)",
+      "Bash(find:*)",
+      "Bash(node tools/extract-pic-screens.js:*)"
+    ],
+    "deny": [
+      "Read(**/.env)",
+      "Read(**/*.png)",
+      "Read(**/*.jpg)",
+      "Read(**/*.jpeg)",
+      "Read(**/*.gif)",
+      "Read(**/*.mp4)",
+      "Read(**/*.mov)",
+      "Read(**/*.pdf)",
+      "Read(**/*.zip)",
+      "Read(**/*.tar)",
+      "Read(**/*.gz)",
+      "Read(**/*.sqlite)",
+      "Read(**/*.parquet)",
+      "Read(**/node_modules)",
+      "Read(**/.git)",
+      "Read(**/dist)",
+      "Read(**/build)",
+      "Read(**/.cache)",
+      "Read(**/coverage)",
+      "Read(**/out)",
+      "Read(**/.venv)"
+    ]
+  }
+}
