@@ -104,6 +104,32 @@ export default function App() {
       responseText.anchor.set(0, 0);
       stage.addChild(responseText);
 
+      // Debug display (shows browser capabilities)
+      const debugText = new Text({
+        text: '',
+        style: {
+          fontFamily: 'monospace',
+          fontSize: 10,
+          fill: 0xff00ff,
+          align: 'left',
+          wordWrap: true,
+          wordWrapWidth: 500,
+        },
+      });
+      debugText.anchor.set(0, 0);
+      stage.addChild(debugText);
+
+      // Check browser capabilities and display
+      const hasGetUserMedia = !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
+      const hasSpeechRecognition = !!((window as any).SpeechRecognition || (window as any).webkitSpeechRecognition);
+      const hasSpeechSynthesis = !!('speechSynthesis' in window);
+
+      debugText.text = `Debug:\n` +
+        `getUserMedia: ${hasGetUserMedia ? 'YES' : 'NO'}\n` +
+        `SpeechRecognition: ${hasSpeechRecognition ? 'YES' : 'NO'}\n` +
+        `SpeechSynthesis: ${hasSpeechSynthesis ? 'YES' : 'NO'}\n` +
+        `HTTPS: ${window.location.protocol === 'https:' ? 'YES' : 'NO'}`;
+
       // Control dots
       startDot = makeDot(20, 0x00ff00); // Green: start recording
       stopDot = makeDot(20, 0xff0000);  // Red: stop recording
@@ -159,6 +185,7 @@ export default function App() {
 
         transcriptText.position.set(20, topMargin + 60);
         responseText.position.set(20, topMargin + 90);
+        debugText.position.set(20, topMargin + 120);
 
         const dotY = h - 40;
         startDot.position.set(w / 2 - 60, dotY);

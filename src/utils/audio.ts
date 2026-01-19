@@ -42,15 +42,27 @@ export function createRecorderController(opts: RecorderOptions): RecorderControl
 
   async function start() {
     if (state !== 'idle') {
-      console.warn('Already recording or recorded');
+      console.warn('[AUDIO] Already recording or recorded');
+      onTranscriptChange?.('Already recording');
       return;
     }
 
+    console.log('[AUDIO] Start button clicked, state:', state);
+    onTranscriptChange?.('Requesting microphone access...');
+
     try {
+      // Check if getUserMedia is available
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        throw new Error('getUserMedia not supported in this browser');
+      }
+
+      console.log('[AUDIO] getUserMedia is available, requesting microphone...');
+
       // Initialize speech synthesis on first user interaction (required for iOS)
       initSpeechSynthesis();
 
       // Request microphone with constraints optimized for speech
+      console.log('[AUDIO] Calling getUserMedia...');
       stream = await navigator.mediaDevices.getUserMedia({
         audio: {
           echoCancellation: true,
@@ -58,6 +70,8 @@ export function createRecorderController(opts: RecorderOptions): RecorderControl
           autoGainControl: true,
         }
       });
+
+      console.log('[AUDIO] Microphone access granted!', stream);
 
       // Initialize MediaRecorder
       mediaRecorder = new MediaRecorder(stream);
@@ -80,15 +94,26 @@ export function createRecorderController(opts: RecorderOptions): RecorderControl
       mediaRecorder.start();
 
       // Start speech recognition (if supported)
+      console.log('[AUDIO] Attempting to create speech recognition...');
       recognition = createSpeechRecognition();
+
       if (recognition) {
+        console.log('[AUDIO] Speech recognition created successfully');
         recognition.continuous = true;
         recognition.interimResults = true;
         recognition.lang = 'en-US';
 
+        recognition.onstart = () => {
+          console.log('[AUDIO] Speech recognition started!');
+          onTranscriptChange?.('Listening... (speak now)');
+        };
+
         recognition.onresult = (event) => {
+          console.log('[AUDIO] Speech recognition result received:', event);
+
           // Ignore results if we're processing or not recording
           if (isProcessing || state !== 'recording') {
+            console.log('[AUDIO] Ignoring result - isProcessing:', isProcessing, 'state:', state);
             return;
           }
 
@@ -104,6 +129,8 @@ export function createRecorderController(opts: RecorderOptions): RecorderControl
             }
           }
 
+          console.log('[AUDIO] Final:', final, 'Interim:', interim);
+
           // Update full transcript with final results
           if (final) {
             transcript += ' ' + final;
@@ -113,37 +140,47 @@ export function createRecorderController(opts: RecorderOptions): RecorderControl
           interimTranscript = interim;
 
           const display = (transcript + ' ' + interim).trim();
+          console.log('[AUDIO] Displaying transcript:', display);
           onTranscriptChange?.(display);
         };
 
         recognition.onerror = (event) => {
-          console.error('Speech recognition error:', event.error);
+          console.error('[AUDIO] Speech recognition error:', event.error, event);
           // On mobile, speech recognition might not be supported
           if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
             onTranscriptChange?.('Speech recognition not available. Recording audio only.');
+          } else {
+            onTranscriptChange?.(`Speech error: ${event.error}`);
           }
         };
 
         recognition.onend = () => {
+          console.log('[AUDIO] Speech recognition ended. State:', state, 'isProcessing:', isProcessing);
           // Speech recognition stopped unexpectedly, restart if still recording
           if (state === 'recording' && !isProcessing) {
+            console.log('[AUDIO] Attempting to restart speech recognition...');
             try {
               recognition?.start();
             } catch (e) {
-              console.warn('Could not restart speech recognition:', e);
+              console.warn('[AUDIO] Could not restart speech recognition:', e);
             }
           }
         };
 
         try {
+          console.log('[AUDIO] Calling recognition.start()...');
           recognition.start();
+          console.log('[AUDIO] recognition.start() called successfully');
+          // Give user feedback that we're waiting for speech recognition to start
+          onTranscriptChange?.('Starting speech recognition...');
         } catch (e) {
-          console.warn('Speech recognition failed to start:', e);
-          onTranscriptChange?.('Recording audio (speech recognition unavailable)');
+          console.error('[AUDIO] Speech recognition failed to start:', e);
+          const errorMsg = e instanceof Error ? e.message : String(e);
+          onTranscriptChange?.(`Speech error: ${errorMsg}`);
         }
       } else {
         // Speech recognition not supported (e.g., iOS Safari)
-        console.warn('Speech recognition not supported on this device');
+        console.warn('[AUDIO] Speech recognition not supported on this device');
         onTranscriptChange?.('Recording audio (speech recognition unavailable)');
       }
 
