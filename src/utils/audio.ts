@@ -9,6 +9,7 @@
 
 import type { RecorderController, RecordingState, RecorderOptions } from '../types';
 import { createSpeechRecognition, speak, initSpeechSynthesis } from './speech';
+import { transcribeAudio } from './whisper';
 
 /**
  * Create a recorder controller for voice input
@@ -26,8 +27,10 @@ export function createRecorderController(opts: RecorderOptions): RecorderControl
   let stream: MediaStream | null = null;
   let chunks: Blob[] = [];
   let audioUrl: string | null = null;
+  let recordedBlob: Blob | null = null; // Store for Whisper fallback
 
   let recognition: any = null; // SpeechRecognition type not available in TS
+  let recognitionWorked = false; // Track if Speech Recognition produced results
 
   let transcript = '';
   let interimTranscript = ''; // Store interim results separately
@@ -47,6 +50,12 @@ export function createRecorderController(opts: RecorderOptions): RecorderControl
       onTranscriptChange?.('Already recording');
       return;
     }
+
+    // Reset state for new recording
+    recognitionWorked = false;
+    recordedBlob = null;
+    transcript = '';
+    interimTranscript = '';
 
     onDebug?.('1:BTN_CLICK');
     onTranscriptChange?.('Requesting microphone...');
@@ -86,6 +95,7 @@ export function createRecorderController(opts: RecorderOptions): RecorderControl
 
       mediaRecorder.onstop = () => {
         const blob = new Blob(chunks, { type: 'audio/webm' });
+        recordedBlob = blob; // Store for potential Whisper fallback
         if (audioUrl) {
           URL.revokeObjectURL(audioUrl);
         }
@@ -146,6 +156,8 @@ export function createRecorderController(opts: RecorderOptions): RecorderControl
             onDebug?.('SKIP_RES');
             return;
           }
+
+          recognitionWorked = true; // Mark that Speech Recognition is working
 
           let interim = '';
           let final = '';
@@ -237,7 +249,7 @@ export function createRecorderController(opts: RecorderOptions): RecorderControl
     }
   }
 
-  function stop() {
+  async function stop() {
     if (state !== 'recording') {
       console.warn('Not currently recording');
       return;
@@ -263,9 +275,27 @@ export function createRecorderController(opts: RecorderOptions): RecorderControl
     }
 
     // Combine final transcript with any interim results
-    const fullTranscript = (transcript + ' ' + interimTranscript).trim();
+    let fullTranscript = (transcript + ' ' + interimTranscript).trim();
 
     onDebug?.(`STOP:${fullTranscript ? 'HAS_TEXT' : 'EMPTY'}`);
+
+    // If Speech Recognition didn't work but we have audio, try Whisper
+    if (!fullTranscript && !recognitionWorked && recordedBlob) {
+      onDebug?.('TRY_WHISPER');
+      onTranscriptChange?.('Using browser AI to transcribe...');
+
+      try {
+        // Wait a bit for MediaRecorder to finish saving the blob
+        await new Promise(resolve => setTimeout(resolve, 100));
+
+        fullTranscript = await transcribeAudio(recordedBlob);
+        onDebug?.(`WHISPER:"${fullTranscript.substring(0,20)}"`);
+        onTranscriptChange?.(`You said: ${fullTranscript}`);
+      } catch (err) {
+        onDebug?.(`WHISPER_ERR:${err instanceof Error ? err.message : 'unknown'}`);
+        onTranscriptChange?.('AI transcription failed - try again');
+      }
+    }
 
     // Process the transcript through the game engine
     if (fullTranscript) {
@@ -297,6 +327,8 @@ export function createRecorderController(opts: RecorderOptions): RecorderControl
     // Reset transcripts for next recording
     transcript = '';
     interimTranscript = '';
+    recognitionWorked = false;
+    recordedBlob = null;
 
     // Reset to idle state so next recording can start
     setState('idle');
