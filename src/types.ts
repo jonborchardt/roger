@@ -154,6 +154,7 @@ export type RecorderOptions = {
   onTranscriptChange?: (text: string) => void;
   onResponseText?: (text: string) => void;
   onStateChange?: (state: RecordingState) => void;
+  onDebug?: (message: string) => void;
   processCommand: (input: string) => MatchResult;
 };
 

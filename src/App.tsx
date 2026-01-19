@@ -104,16 +104,17 @@ export default function App() {
       responseText.anchor.set(0, 0);
       stage.addChild(responseText);
 
-      // Debug display (shows browser capabilities)
+      // Debug display (shows browser capabilities) - LARGE TEXT for mobile
       const debugText = new Text({
         text: '',
         style: {
-          fontFamily: 'monospace',
-          fontSize: 10,
-          fill: 0xff00ff,
+          fontFamily: 'Arial, sans-serif',
+          fontSize: 16,
+          fill: 0xffff00,
           align: 'left',
           wordWrap: true,
-          wordWrapWidth: 500,
+          wordWrapWidth: 700,
+          fontWeight: 'bold',
         },
       });
       debugText.anchor.set(0, 0);
@@ -124,11 +125,8 @@ export default function App() {
       const hasSpeechRecognition = !!((window as any).SpeechRecognition || (window as any).webkitSpeechRecognition);
       const hasSpeechSynthesis = !!('speechSynthesis' in window);
 
-      debugText.text = `Debug:\n` +
-        `getUserMedia: ${hasGetUserMedia ? 'YES' : 'NO'}\n` +
-        `SpeechRecognition: ${hasSpeechRecognition ? 'YES' : 'NO'}\n` +
-        `SpeechSynthesis: ${hasSpeechSynthesis ? 'YES' : 'NO'}\n` +
-        `HTTPS: ${window.location.protocol === 'https:' ? 'YES' : 'NO'}`;
+      let debugInfo = `APIs: Media=${hasGetUserMedia?'Y':'N'} Speech=${hasSpeechRecognition?'Y':'N'} TTS=${hasSpeechSynthesis?'Y':'N'} HTTPS=${window.location.protocol==='https:'?'Y':'N'}`;
+      debugText.text = debugInfo;
 
       // Control dots
       startDot = makeDot(20, 0x00ff00); // Green: start recording
@@ -156,6 +154,9 @@ export default function App() {
           } else if (state === 'recorded') {
             statusText.text = 'Press green to record again';
           }
+        },
+        onDebug: (msg) => {
+          debugText.text = `${debugInfo} | ${msg}`;
         },
       });
 
