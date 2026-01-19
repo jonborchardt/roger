@@ -2,11 +2,21 @@
 
 This guide explains how to deploy the voice-enabled PWA to mobile devices (iOS and Android).
 
+## How to Use
+
+**Simple Interface:**
+- **Single button** (centered at bottom): Tap to start/stop voice recording
+  - Green = Ready to record
+  - Red = Currently recording
+- Speak your command naturally
+- The game will respond with both text and speech
+
 ## Overview
 
 The app uses:
 - **MediaRecorder API** for audio recording (works on all platforms)
 - **Speech Recognition API** for voice-to-text (desktop Chrome, Android Chrome - **NOT iOS Safari**)
+- **Transformers.js Whisper** for browser-based speech recognition fallback (when Speech Recognition API fails)
 - **Speech Synthesis API** for text-to-speech (works on all platforms with iOS-specific workarounds)
 
 ## Important Platform Limitations
@@ -19,7 +29,8 @@ The app uses:
 
 ### Android Chrome (PWA)
 - ✅ **Microphone recording**: Works
-- ✅ **Speech Recognition**: Works
+- ⚠️ **Speech Recognition**: May fail on some devices (automatic Whisper fallback enabled)
+- ✅ **Browser AI (Whisper)**: Automatic fallback when Speech Recognition fails (~40MB download on first use)
 - ✅ **Speech Synthesis**: Works
 - ⚠️ **HTTPS required**: PWA must be served over HTTPS (localhost is OK for testing)
 
@@ -70,9 +81,24 @@ npm run preview
 
 ### 4. Grant Microphone Permission
 
-When you first tap the green record button:
+When you first tap the button:
 - **iOS**: Will prompt for microphone permission (tap "Allow")
 - **Android**: Will prompt for microphone permission (tap "Allow")
+
+### 5. Using the App
+
+**Simple workflow:**
+1. Tap the button (turns red when listening)
+2. Speak your command clearly
+3. Tap again to stop recording
+4. Wait for transcription and game response
+5. Repeat!
+
+**First use on Android with Whisper fallback:**
+- If Speech Recognition fails, you'll see "Loading AI model... (first time only)"
+- ~40MB Whisper model downloads automatically
+- Takes 5-10 seconds on first use only
+- Subsequent uses are fast (model is cached in browser)
 
 ## Capacitor Deployment (Native App)
 
@@ -122,24 +148,28 @@ npm run cap:open:ios
 ## Testing Checklist
 
 ### Desktop (Chrome/Edge)
-- [ ] Tap green button → microphone permission prompt appears
-- [ ] Speak → transcript appears in real-time
-- [ ] Tap red button → game responds with text
-- [ ] Game response is spoken aloud
+- [ ] Tap button → microphone permission prompt appears
+- [ ] Button turns red while recording
+- [ ] Speak → transcript appears
+- [ ] Tap button to stop → game responds with text and speech
+- [ ] Button returns to green
 
 ### Android PWA (Chrome)
 - [ ] Install PWA to home screen
-- [ ] Tap green button → microphone permission prompt appears
-- [ ] Speak → transcript appears in real-time
-- [ ] Tap red button → game responds with text
-- [ ] Game response is spoken aloud
+- [ ] Tap button → microphone permission prompt appears
+- [ ] Button turns red while recording
+- [ ] Speak clearly
+- [ ] Tap button to stop
+- [ ] If Speech Recognition works: transcript appears immediately
+- [ ] If Speech Recognition fails: "Loading AI model..." appears, then transcript
+- [ ] Game responds with text and speech
+- [ ] Subsequent recordings are fast (Whisper model cached)
 
 ### iOS PWA (Safari)
 - [ ] Install PWA to home screen
-- [ ] Tap green button → microphone permission prompt appears
-- [ ] Speak → message shows "Recording audio (speech recognition unavailable)"
-- [ ] Tap red button → app records audio BUT cannot transcribe it
-- [ ] **Expected limitation**: Speech recognition does NOT work on iOS
+- [ ] Tap button → microphone permission prompt appears
+- [ ] Button turns red while recording
+- [ ] **Known limitation**: No transcription available (iOS doesn't support Web Speech API or browser AI)
 - [ ] Game response IS spoken aloud (speech synthesis works)
 
 ## Troubleshooting

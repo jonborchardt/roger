@@ -26,9 +26,7 @@ export default function App() {
     // State refs for PixiJS display
     let transcriptText: Text;
     let responseText: Text;
-    let startDot: ReturnType<typeof makeDot>;
-    let stopDot: ReturnType<typeof makeDot>;
-    let speakDot: ReturnType<typeof makeDot>;
+    let recordButton: ReturnType<typeof makeDot>;
 
     (async () => {
       await app.init({
@@ -45,7 +43,6 @@ export default function App() {
       const bgTexture = await Assets.load(game.getBackgroundPath());
       const bg = new Sprite(bgTexture);
       bg.anchor.set(0.5, 0.5);
-      bg.scale.set(0.5);
       stage.addChild(bg);
 
       // Title text
@@ -120,6 +117,9 @@ export default function App() {
       debugText.anchor.set(0, 0);
       stage.addChild(debugText);
 
+      // DEBUG MODE TOGGLE - Set to true to show debug info
+      const DEBUG_MODE = false;
+
       // Check browser capabilities and display
       const hasGetUserMedia = !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
       const hasSpeechRecognition = !!((window as any).SpeechRecognition || (window as any).webkitSpeechRecognition);
@@ -130,26 +130,26 @@ export default function App() {
 
       let debugInfo = `Build:${buildTime} APIs:M=${hasGetUserMedia?'Y':'N'} S=${hasSpeechRecognition?'Y':'N'} T=${hasSpeechSynthesis?'Y':'N'} H=${window.location.protocol==='https:'?'Y':'N'}`;
 
-      // Event history buffer (keep last 13 events)
+      // Event history buffer (keep last 8 events)
       const eventHistory: string[] = [];
       const addEvent = (event: string) => {
+        if (!DEBUG_MODE) return; // Skip if debug disabled
         eventHistory.push(event);
-        if (eventHistory.length > 13) {
+        if (eventHistory.length > 8) {
           eventHistory.shift(); // Remove oldest
         }
         debugText.text = `${debugInfo}\n${eventHistory.join('\n')}`;
       };
 
+      // Hide debug text if disabled
+      debugText.visible = DEBUG_MODE;
+
       addEvent('Ready');
 
-      // Control dots
-      startDot = makeDot(20, 0x00ff00); // Green: start recording
-      stopDot = makeDot(20, 0xff0000);  // Red: stop recording
-      speakDot = makeDot(20, 0x00ffff); // Cyan: speak last response
+      // Single toggle button for record/stop
+      recordButton = makeDot(30, 0x00ff00); // Green when idle, red when recording
 
-      stage.addChild(startDot);
-      stage.addChild(stopDot);
-      stage.addChild(speakDot);
+      stage.addChild(recordButton);
 
       // Create recorder controller
       const recorder = createRecorderController({
@@ -162,11 +162,9 @@ export default function App() {
         },
         onStateChange: (state) => {
           if (state === 'idle') {
-            statusText.text = 'Press green to record';
+            statusText.text = 'Tap to speak';
           } else if (state === 'recording') {
-            statusText.text = 'Recording... (press red to stop)';
-          } else if (state === 'recorded') {
-            statusText.text = 'Press green to record again';
+            statusText.text = 'Listening... tap to stop';
           }
         },
         onDebug: (msg) => {
@@ -174,23 +172,34 @@ export default function App() {
         },
       });
 
-      // Wire up dot click handlers
-      startDot.on('pointertap', () => {
-        recorder.start();
-      });
-
-      stopDot.on('pointertap', () => {
-        recorder.stop();
-      });
-
-      speakDot.on('pointertap', () => {
-        recorder.speakLastResponse();
+      // Wire up single toggle button
+      recordButton.on('pointertap', () => {
+        const state = recorder.getState();
+        if (state === 'idle') {
+          recorder.start();
+        } else if (state === 'recording') {
+          recorder.stop();
+        }
       });
 
       // Layout function
       function updateLayout() {
         const w = app.renderer.width;
         const h = app.renderer.height;
+
+        // Scale background to cover screen while maintaining aspect ratio
+        const bgAspect = bgTexture.width / bgTexture.height;
+        const screenAspect = w / h;
+
+        if (screenAspect > bgAspect) {
+          // Screen is wider than background - fit to width
+          bg.width = w;
+          bg.height = w / bgAspect;
+        } else {
+          // Screen is taller than background - fit to height
+          bg.height = h;
+          bg.width = h * bgAspect;
+        }
 
         bg.position.set(w / 2, h / 2);
 
@@ -202,10 +211,8 @@ export default function App() {
         responseText.position.set(20, topMargin + 90);
         debugText.position.set(20, topMargin + 120);
 
-        const dotY = h - 40;
-        startDot.position.set(w / 2 - 60, dotY);
-        stopDot.position.set(w / 2, dotY);
-        speakDot.position.set(w / 2 + 60, dotY);
+        const dotY = h - 50;
+        recordButton.position.set(w / 2, dotY);
       }
 
       updateLayout();
@@ -214,24 +221,16 @@ export default function App() {
       // Animation loop
       app.ticker.add(() => {
         const t = Date.now() * 0.001;
-        startDot.rotation = Math.sin(t) * 0.1;
-        stopDot.rotation = Math.sin(t + 1) * 0.1;
-        speakDot.rotation = Math.sin(t + 2) * 0.1;
+        recordButton.rotation = Math.sin(t) * 0.1;
 
-        // Update dot colors based on state
+        // Update button color based on state
         const state: RecordingState = recorder.getState();
         if (state === 'idle') {
-          repaintDot(startDot, 20, 0x00ff00);
-          repaintDot(stopDot, 20, 0x555555);
-          repaintDot(speakDot, 20, 0x00ffff);
+          // Green microphone icon when idle
+          repaintDot(recordButton, 30, 0x00ff00);
         } else if (state === 'recording') {
-          repaintDot(startDot, 20, 0x555555);
-          repaintDot(stopDot, 20, 0xff0000);
-          repaintDot(speakDot, 20, 0x555555);
-        } else {
-          repaintDot(startDot, 20, 0x00ff00);
-          repaintDot(stopDot, 20, 0x555555);
-          repaintDot(speakDot, 20, 0x00ffff);
+          // Red stop icon when recording
+          repaintDot(recordButton, 30, 0xff0000);
         }
       });
 
@@ -246,13 +245,7 @@ export default function App() {
 
   return (
     <div className="app">
-      <header className="header">
-        <h1>Hello World</h1>
-        <p>React + Vite + Pixi + PWA (service worker) + Capacitor</p>
-      </header>
-      <main className="main">
-        <div className="canvasHost" ref={hostRef} />
-      </main>
+      <div className="canvasHost" ref={hostRef} />
     </div>
   );
 }
