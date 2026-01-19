@@ -117,8 +117,8 @@ export default function App() {
       debugText.anchor.set(0, 0);
       stage.addChild(debugText);
 
-      // DEBUG MODE TOGGLE - Set to true to show debug info
-      const DEBUG_MODE = false;
+      // Always show build timestamp
+      const DEBUG_MODE = true;
 
       // Check browser capabilities and display
       const hasGetUserMedia = !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
@@ -151,6 +151,9 @@ export default function App() {
 
       stage.addChild(recordButton);
 
+      // Track if game is processing response
+      let isGameProcessing = false;
+
       // Create recorder controller
       const recorder = createRecorderController({
         processCommand: (input) => game.processCommand(input),
@@ -170,6 +173,10 @@ export default function App() {
         onDebug: (msg) => {
           addEvent(msg);
         },
+        onProcessingComplete: () => {
+          isGameProcessing = false;
+          addEvent('PROC_DONE');
+        },
       });
 
       // Wire up single toggle button with debouncing
@@ -177,7 +184,7 @@ export default function App() {
 
       recordButton.on('pointertap', async () => {
         // Ignore clicks while processing
-        if (isProcessingClick) {
+        if (isProcessingClick || isGameProcessing) {
           addEvent('CLICK_IGNORED');
           return;
         }
@@ -191,9 +198,10 @@ export default function App() {
           isProcessingClick = false;
         } else if (state === 'recording') {
           isProcessingClick = true;
+          isGameProcessing = true; // Mark that game will process response
           recordButton.interactive = false; // Disable during processing
-          await recorder.stop();
-          // Button will re-enable when state returns to idle
+          recorder.stop();
+          // Button will re-enable when onProcessingComplete fires
           isProcessingClick = false;
         }
       });
@@ -204,17 +212,10 @@ export default function App() {
         const h = app.renderer.height;
 
         // Scale background to cover entire screen (like CSS background-size: cover)
-        const bgAspect = bgTexture.width / bgTexture.height;
-        const screenAspect = w / h;
-
-        let scale = 1;
-        if (screenAspect > bgAspect) {
-          // Screen is wider - scale to width
-          scale = w / bgTexture.width;
-        } else {
-          // Screen is taller - scale to height
-          scale = h / bgTexture.height;
-        }
+        // Use the larger scale to ensure full coverage
+        const scaleX = w / bgTexture.width;
+        const scaleY = h / bgTexture.height;
+        const scale = Math.max(scaleX, scaleY);
 
         bg.scale.set(scale, scale);
         bg.position.set(w / 2, h / 2);
@@ -244,21 +245,22 @@ export default function App() {
         if (state === 'idle') {
           // Green microphone icon when idle - ready to record
           repaintDot(recordButton, 30, 0x00ff00);
-          if (!isProcessingClick) {
+          if (!isProcessingClick && !isGameProcessing) {
             recordButton.interactive = true;
             recordButton.alpha = 1.0;
           }
         } else if (state === 'recording') {
           // Red stop icon when recording
           repaintDot(recordButton, 30, 0xff0000);
-          if (!isProcessingClick) {
+          if (!isProcessingClick && !isGameProcessing) {
             recordButton.interactive = true;
             recordButton.alpha = 1.0;
           }
         }
 
-        // Show disabled state when processing
-        if (!recordButton.interactive) {
+        // Show disabled state when processing or button is disabled
+        if (!recordButton.interactive || isGameProcessing) {
+          recordButton.interactive = false;
           recordButton.alpha = 0.5;
         }
       });

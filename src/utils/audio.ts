@@ -20,6 +20,7 @@ export function createRecorderController(opts: RecorderOptions): RecorderControl
     onResponseText,
     onStateChange,
     onDebug,
+    onProcessingComplete,
     processCommand,
   } = opts;
 
@@ -357,28 +358,49 @@ export function createRecorderController(opts: RecorderOptions): RecorderControl
 
       lastResponse = responseText;
 
-      // Speak the response
-      speak(responseText);
-
-      // Update UI
+      // Update UI immediately
       onResponseText?.(responseText);
       onDebug?.('RESP_OK');
+
+      // Speak the response and wait for completion
+      speak(responseText, () => {
+        // Called when speech finishes
+        onDebug?.('SPEECH_DONE');
+
+        // Reset transcripts for next recording
+        transcript = '';
+        interimTranscript = '';
+        recognitionWorked = false;
+        recordedBlob = null;
+
+        // Reset to idle state so next recording can start
+        setState('idle');
+
+        // Clear processing flag for next recording
+        isProcessing = false;
+
+        // Notify that processing is complete
+        onProcessingComplete?.();
+      });
     } else {
       onDebug?.('NO_TRANSCRIPT');
       onTranscriptChange?.('No speech captured - try again');
+
+      // Reset transcripts for next recording
+      transcript = '';
+      interimTranscript = '';
+      recognitionWorked = false;
+      recordedBlob = null;
+
+      // Reset to idle state so next recording can start
+      setState('idle');
+
+      // Clear processing flag for next recording
+      isProcessing = false;
+
+      // Notify that processing is complete
+      onProcessingComplete?.();
     }
-
-    // Reset transcripts for next recording
-    transcript = '';
-    interimTranscript = '';
-    recognitionWorked = false;
-    recordedBlob = null;
-
-    // Reset to idle state so next recording can start
-    setState('idle');
-
-    // Clear processing flag for next recording
-    isProcessing = false;
   }
 
   function speakLastResponse() {

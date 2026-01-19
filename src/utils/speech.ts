@@ -66,15 +66,17 @@ export function initSpeechSynthesis(): void {
  * Speak text using Web Speech Synthesis API
  * Mobile-compatible with iOS workarounds
  */
-export function speak(text: string): void {
+export function speak(text: string, onComplete?: () => void): void {
   if (!('speechSynthesis' in window)) {
     console.warn('Text-to-speech is not supported in this browser.');
+    onComplete?.();
     return;
   }
 
   const trimmed = text.trim();
   if (!trimmed) {
     console.warn('No text to speak.');
+    onComplete?.();
     return;
   }
 
@@ -98,6 +100,12 @@ export function speak(text: string): void {
     // Error handling for mobile
     utterance.onerror = (event) => {
       console.error('Speech synthesis error:', event);
+      onComplete?.();
+    };
+
+    // Call completion callback when speech finishes
+    utterance.onend = () => {
+      onComplete?.();
     };
 
     window.speechSynthesis.speak(utterance);
