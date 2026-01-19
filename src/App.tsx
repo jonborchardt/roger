@@ -104,7 +104,7 @@ export default function App() {
       responseText.anchor.set(0, 0);
       stage.addChild(responseText);
 
-      // Debug display - shows last 8 events
+      // Debug display - shows last 13 events
       const debugText = new Text({
         text: '',
         style: {
@@ -130,11 +130,11 @@ export default function App() {
 
       let debugInfo = `Build:${buildTime} APIs:M=${hasGetUserMedia?'Y':'N'} S=${hasSpeechRecognition?'Y':'N'} T=${hasSpeechSynthesis?'Y':'N'} H=${window.location.protocol==='https:'?'Y':'N'}`;
 
-      // Event history buffer (keep last 8 events)
+      // Event history buffer (keep last 13 events)
       const eventHistory: string[] = [];
       const addEvent = (event: string) => {
         eventHistory.push(event);
-        if (eventHistory.length > 8) {
+        if (eventHistory.length > 13) {
           eventHistory.shift(); // Remove oldest
         }
         debugText.text = `${debugInfo}\n${eventHistory.join('\n')}`;
