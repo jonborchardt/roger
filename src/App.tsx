@@ -104,16 +104,16 @@ export default function App() {
       responseText.anchor.set(0, 0);
       stage.addChild(responseText);
 
-      // Debug display (shows browser capabilities) - HUGE TEXT for mobile
+      // Debug display - shows last 8 events
       const debugText = new Text({
         text: '',
         style: {
-          fontFamily: 'Arial, sans-serif',
-          fontSize: 64,
-          fill: 0xff0000,
+          fontFamily: 'Courier New, monospace',
+          fontSize: 20,
+          fill: 0xffff00,
           align: 'left',
           wordWrap: true,
-          wordWrapWidth: 1000,
+          wordWrapWidth: 800,
           fontWeight: 'bold',
         },
       });
@@ -125,8 +125,19 @@ export default function App() {
       const hasSpeechRecognition = !!((window as any).SpeechRecognition || (window as any).webkitSpeechRecognition);
       const hasSpeechSynthesis = !!('speechSynthesis' in window);
 
-      let debugInfo = `APIs: Media=${hasGetUserMedia?'Y':'N'} Speech=${hasSpeechRecognition?'Y':'N'} TTS=${hasSpeechSynthesis?'Y':'N'} HTTPS=${window.location.protocol==='https:'?'Y':'N'}`;
-      debugText.text = debugInfo;
+      let debugInfo = `APIs: M=${hasGetUserMedia?'Y':'N'} S=${hasSpeechRecognition?'Y':'N'} T=${hasSpeechSynthesis?'Y':'N'} H=${window.location.protocol==='https:'?'Y':'N'}`;
+
+      // Event history buffer (keep last 8 events)
+      const eventHistory: string[] = [];
+      const addEvent = (event: string) => {
+        eventHistory.push(event);
+        if (eventHistory.length > 8) {
+          eventHistory.shift(); // Remove oldest
+        }
+        debugText.text = `${debugInfo}\n${eventHistory.join('\n')}`;
+      };
+
+      addEvent('Ready');
 
       // Control dots
       startDot = makeDot(20, 0x00ff00); // Green: start recording
@@ -156,7 +167,7 @@ export default function App() {
           }
         },
         onDebug: (msg) => {
-          debugText.text = `${debugInfo} | ${msg}`;
+          addEvent(msg);
         },
       });
 
