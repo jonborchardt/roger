@@ -100,10 +100,11 @@ export function createRecorderController(opts: RecorderOptions): RecorderControl
 
       if (recognition) {
         onDebug?.('6:RECOG_OK');
-        recognition.continuous = true;
+        // Try NON-continuous mode - Chrome Android works better with this
+        recognition.continuous = false;
         recognition.interimResults = true;
-        recognition.lang = 'en-US'; // Required - Chrome needs language specified
-        recognition.maxAlternatives = 5; // Get more alternatives for better matching
+        recognition.lang = 'en-US';
+        recognition.maxAlternatives = 5;
 
         recognition.onstart = () => {
           onDebug?.('7:STARTED!!!');
