@@ -12,7 +12,10 @@
       "Bash(node create-control-map.js:*)",
       "Bash(node tools/create-control-map.js:*)",
       "Bash(find:*)",
-      "Bash(node tools/extract-pic-screens.js:*)"
+      "Bash(node tools/extract-pic-screens.js:*)",
+      "Bash(git add:*)",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nAdd stop/transcript debugging and fix TS errors\n\n- Show STOP:HAS_TEXT or STOP:EMPTY when red button pressed\n- Show NO_TRANSCRIPT if no speech was captured\n- Show PROC:\"text\" with actual transcript captured\n- Show RESP_OK when response spoken\n- Tell user \"No speech captured - try again\" if empty\n- Fix TypeScript errors with SpeechRecognition types\n\nThis will show if:\n1. Stop button was pressed \\(STOP:xxx\\)\n2. Whether any transcript was captured \\(HAS_TEXT vs EMPTY\\)\n3. What text was actually captured \\(PROC:\"...\"\\)\n4. If response was spoken \\(RESP_OK\\)\n\nNow we can see if the issue is:\n- Recognition not hearing speech \\(AUDIO_START but no SOUND_START\\)\n- Or not transcribing \\(SOUND_START but transcript is EMPTY\\)\n\nDesktop unchanged.\nEOF\n\\)\")",
+      "Bash(git push:*)"
     ],
     "deny": [
       "Read(**/.env)",

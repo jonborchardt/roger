@@ -27,7 +27,7 @@ export function createRecorderController(opts: RecorderOptions): RecorderControl
   let chunks: Blob[] = [];
   let audioUrl: string | null = null;
 
-  let recognition: SpeechRecognition | null = null;
+  let recognition: any = null; // SpeechRecognition type not available in TS
 
   let transcript = '';
   let interimTranscript = ''; // Store interim results separately
@@ -136,7 +136,7 @@ export function createRecorderController(opts: RecorderOptions): RecorderControl
           onDebug?.('AUDIO_END');
         };
 
-        recognition.onresult = (event) => {
+        recognition.onresult = (event: any) => {
           onDebug?.('8:RESULT');
 
           // Ignore results if we're processing or not recording
@@ -173,7 +173,7 @@ export function createRecorderController(opts: RecorderOptions): RecorderControl
           onTranscriptChange?.('Heard but no match');
         };
 
-        recognition.onerror = (event) => {
+        recognition.onerror = (event: any) => {
           onDebug?.(`ERR:${event.error}`);
           if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
             onTranscriptChange?.('Speech not allowed');
@@ -250,8 +250,11 @@ export function createRecorderController(opts: RecorderOptions): RecorderControl
     // Combine final transcript with any interim results
     const fullTranscript = (transcript + ' ' + interimTranscript).trim();
 
+    onDebug?.(`STOP:${fullTranscript ? 'HAS_TEXT' : 'EMPTY'}`);
+
     // Process the transcript through the game engine
     if (fullTranscript) {
+      onDebug?.(`PROC:"${fullTranscript}"`);
       const result = processCommand(fullTranscript);
 
       let responseText = '';
@@ -270,6 +273,10 @@ export function createRecorderController(opts: RecorderOptions): RecorderControl
 
       // Update UI
       onResponseText?.(responseText);
+      onDebug?.('RESP_OK');
+    } else {
+      onDebug?.('NO_TRANSCRIPT');
+      onTranscriptChange?.('No speech captured - try again');
     }
 
     // Reset transcripts for next recording
