@@ -102,9 +102,8 @@ export function createRecorderController(opts: RecorderOptions): RecorderControl
         onDebug?.('6:RECOG_OK');
         recognition.continuous = true;
         recognition.interimResults = true;
-        // Let Chrome auto-detect language instead of forcing en-US
-        // recognition.lang = 'en-US';
-        recognition.maxAlternatives = 3; // Get more alternatives for better matching
+        recognition.lang = 'en-US'; // Required - Chrome needs language specified
+        recognition.maxAlternatives = 5; // Get more alternatives for better matching
 
         recognition.onstart = () => {
           onDebug?.('7:STARTED!!!');
@@ -143,6 +142,7 @@ export function createRecorderController(opts: RecorderOptions): RecorderControl
 
           // Ignore results if we're processing or not recording
           if (isProcessing || state !== 'recording') {
+            onDebug?.('SKIP_RES');
             return;
           }
 
@@ -152,32 +152,34 @@ export function createRecorderController(opts: RecorderOptions): RecorderControl
           for (let i = event.resultIndex; i < event.results.length; i++) {
             const result = event.results[i];
 
-            // Log all alternatives for debugging
-            if (result.length > 1) {
-              const alts = [];
-              for (let j = 0; j < Math.min(3, result.length); j++) {
-                alts.push(`${result[j].transcript}(${(result[j].confidence * 100).toFixed(0)}%)`);
-              }
-              onDebug?.(`ALT:${alts.join(',')}`);
-            }
+            // ALWAYS capture first alternative even if confidence is low
+            const text = result[0]?.transcript || '';
+            const conf = result[0]?.confidence || 0;
+
+            onDebug?.(`GOT:"${text.substring(0,20)}"(${(conf*100).toFixed(0)}%)`);
 
             if (result.isFinal) {
-              final += result[0].transcript;
+              final += text;
+              onDebug?.('FINAL');
             } else {
-              interim += result[0].transcript;
+              interim += text;
+              onDebug?.('INTERIM');
             }
           }
 
           // Update full transcript with final results
           if (final) {
             transcript += ' ' + final;
+            onDebug?.(`T="${transcript.substring(0,20)}"`);
           }
 
           // Store latest interim for use when stopping
           interimTranscript = interim;
 
           const display = (transcript + ' ' + interim).trim();
-          onTranscriptChange?.(display);
+          if (display) {
+            onTranscriptChange?.(display);
+          }
         };
 
         recognition.onnomatch = () => {
