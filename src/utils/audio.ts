@@ -102,7 +102,9 @@ export function createRecorderController(opts: RecorderOptions): RecorderControl
         onDebug?.('6:RECOG_OK');
         recognition.continuous = true;
         recognition.interimResults = true;
-        recognition.lang = 'en-US';
+        // Let Chrome auto-detect language instead of forcing en-US
+        // recognition.lang = 'en-US';
+        recognition.maxAlternatives = 3; // Get more alternatives for better matching
 
         recognition.onstart = () => {
           onDebug?.('7:STARTED!!!');
@@ -149,6 +151,16 @@ export function createRecorderController(opts: RecorderOptions): RecorderControl
 
           for (let i = event.resultIndex; i < event.results.length; i++) {
             const result = event.results[i];
+
+            // Log all alternatives for debugging
+            if (result.length > 1) {
+              const alts = [];
+              for (let j = 0; j < Math.min(3, result.length); j++) {
+                alts.push(`${result[j].transcript}(${(result[j].confidence * 100).toFixed(0)}%)`);
+              }
+              onDebug?.(`ALT:${alts.join(',')}`);
+            }
+
             if (result.isFinal) {
               final += result[0].transcript;
             } else {

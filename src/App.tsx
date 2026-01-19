@@ -104,16 +104,16 @@ export default function App() {
       responseText.anchor.set(0, 0);
       stage.addChild(responseText);
 
-      // Debug display (shows browser capabilities) - LARGE TEXT for mobile
+      // Debug display (shows browser capabilities) - HUGE TEXT for mobile
       const debugText = new Text({
         text: '',
         style: {
           fontFamily: 'Arial, sans-serif',
-          fontSize: 16,
-          fill: 0xffff00,
+          fontSize: 64,
+          fill: 0xff0000,
           align: 'left',
           wordWrap: true,
-          wordWrapWidth: 700,
+          wordWrapWidth: 1000,
           fontWeight: 'bold',
         },
       });
