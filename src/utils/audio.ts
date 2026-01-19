@@ -109,6 +109,33 @@ export function createRecorderController(opts: RecorderOptions): RecorderControl
           onTranscriptChange?.('LISTENING NOW - speak!');
         };
 
+        recognition.onaudiostart = () => {
+          onDebug?.('AUDIO_START');
+          onTranscriptChange?.('Audio detected!');
+        };
+
+        recognition.onsoundstart = () => {
+          onDebug?.('SOUND_START');
+          onTranscriptChange?.('Sound detected!');
+        };
+
+        recognition.onspeechstart = () => {
+          onDebug?.('SPEECH_START');
+          onTranscriptChange?.('Speech detected!');
+        };
+
+        recognition.onspeechend = () => {
+          onDebug?.('SPEECH_END');
+        };
+
+        recognition.onsoundend = () => {
+          onDebug?.('SOUND_END');
+        };
+
+        recognition.onaudioend = () => {
+          onDebug?.('AUDIO_END');
+        };
+
         recognition.onresult = (event) => {
           onDebug?.('8:RESULT');
 
@@ -141,10 +168,19 @@ export function createRecorderController(opts: RecorderOptions): RecorderControl
           onTranscriptChange?.(display);
         };
 
+        recognition.onnomatch = () => {
+          onDebug?.('NO_MATCH');
+          onTranscriptChange?.('Heard but no match');
+        };
+
         recognition.onerror = (event) => {
           onDebug?.(`ERR:${event.error}`);
           if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
             onTranscriptChange?.('Speech not allowed');
+          } else if (event.error === 'no-speech') {
+            onTranscriptChange?.('No speech detected (timeout)');
+          } else if (event.error === 'network') {
+            onTranscriptChange?.('Network error - check connection');
           } else {
             onTranscriptChange?.(`Error: ${event.error}`);
           }
