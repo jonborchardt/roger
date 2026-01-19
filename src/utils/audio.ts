@@ -8,7 +8,7 @@
  */
 
 import type { RecorderController, RecordingState, RecorderOptions } from '../types';
-import { createSpeechRecognition, speak } from './speech';
+import { createSpeechRecognition, speak, initSpeechSynthesis } from './speech';
 
 /**
  * Create a recorder controller for voice input
@@ -47,8 +47,17 @@ export function createRecorderController(opts: RecorderOptions): RecorderControl
     }
 
     try {
-      // Request microphone
-      stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      // Initialize speech synthesis on first user interaction (required for iOS)
+      initSpeechSynthesis();
+
+      // Request microphone with constraints optimized for speech
+      stream = await navigator.mediaDevices.getUserMedia({
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true,
+        }
+      });
 
       // Initialize MediaRecorder
       mediaRecorder = new MediaRecorder(stream);
@@ -70,7 +79,7 @@ export function createRecorderController(opts: RecorderOptions): RecorderControl
 
       mediaRecorder.start();
 
-      // Start speech recognition
+      // Start speech recognition (if supported)
       recognition = createSpeechRecognition();
       if (recognition) {
         recognition.continuous = true;
@@ -109,15 +118,40 @@ export function createRecorderController(opts: RecorderOptions): RecorderControl
 
         recognition.onerror = (event) => {
           console.error('Speech recognition error:', event.error);
+          // On mobile, speech recognition might not be supported
+          if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
+            onTranscriptChange?.('Speech recognition not available. Recording audio only.');
+          }
         };
 
-        recognition.start();
+        recognition.onend = () => {
+          // Speech recognition stopped unexpectedly, restart if still recording
+          if (state === 'recording' && !isProcessing) {
+            try {
+              recognition?.start();
+            } catch (e) {
+              console.warn('Could not restart speech recognition:', e);
+            }
+          }
+        };
+
+        try {
+          recognition.start();
+        } catch (e) {
+          console.warn('Speech recognition failed to start:', e);
+          onTranscriptChange?.('Recording audio (speech recognition unavailable)');
+        }
+      } else {
+        // Speech recognition not supported (e.g., iOS Safari)
+        console.warn('Speech recognition not supported on this device');
+        onTranscriptChange?.('Recording audio (speech recognition unavailable)');
       }
 
       setState('recording');
     } catch (err) {
       console.error('Error starting recording:', err);
-      alert('Could not access microphone. Please grant permission.');
+      const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+      alert(`Could not access microphone: ${errorMessage}\n\nPlease grant microphone permission in your browser settings.`);
     }
   }
 

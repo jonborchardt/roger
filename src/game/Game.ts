@@ -385,6 +385,26 @@ export class Game {
       );
     if (intent === 'talk') return reply('fallback.talk', replies.talkGeneral);
 
+    // Log unhandled commands for analysis
+    console.log('[UNHANDLED_COMMAND]', {
+      raw,
+      parsed: {
+        verbs: Array.from(p.verbs),
+        nouns: Array.from(p.nouns),
+        adjs: Array.from(p.adjs),
+        intents: Array.from(p.intents),
+        targets: Array.from(p.targets),
+        person: Array.from(p.person),
+        preps: Array.from(p.preps),
+        pronouns: Array.from(p.pronouns),
+        question: p.question,
+      },
+      context: {
+        lastFocus: ctx.lastFocus,
+        inventory: Array.from(ctx.inventory ?? []),
+      },
+    });
+
     return reply(
       'fallback.default',
       `You try: "${raw}". The environment does not cooperate, but it does register your effort.`,
