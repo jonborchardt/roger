@@ -8,6 +8,9 @@ const base = process.env.VITE_BASE ?? '/roger/';
 
 export default defineConfig({
   base,
+  define: {
+    'import.meta.env.VITE_BUILD_TIME': JSON.stringify(new Date().toISOString().slice(0, 19).replace('T', '_')),
+  },
   plugins: [
     react(),
     VitePWA({

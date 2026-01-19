@@ -125,7 +125,10 @@ export default function App() {
       const hasSpeechRecognition = !!((window as any).SpeechRecognition || (window as any).webkitSpeechRecognition);
       const hasSpeechSynthesis = !!('speechSynthesis' in window);
 
-      let debugInfo = `APIs: M=${hasGetUserMedia?'Y':'N'} S=${hasSpeechRecognition?'Y':'N'} T=${hasSpeechSynthesis?'Y':'N'} H=${window.location.protocol==='https:'?'Y':'N'}`;
+      // Build timestamp for cache verification
+      const buildTime = import.meta.env.VITE_BUILD_TIME || 'dev';
+
+      let debugInfo = `Build:${buildTime} APIs:M=${hasGetUserMedia?'Y':'N'} S=${hasSpeechRecognition?'Y':'N'} T=${hasSpeechSynthesis?'Y':'N'} H=${window.location.protocol==='https:'?'Y':'N'}`;
 
       // Event history buffer (keep last 8 events)
       const eventHistory: string[] = [];
