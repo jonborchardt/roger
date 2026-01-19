@@ -118,7 +118,7 @@ export default function App() {
       stage.addChild(debugText);
 
       // Always show build timestamp
-      const DEBUG_MODE = true;
+      const DEBUG_MODE = false;
 
       // Check browser capabilities and display
       const hasGetUserMedia = !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
@@ -135,7 +135,7 @@ export default function App() {
       const addEvent = (event: string) => {
         if (!DEBUG_MODE) return; // Skip if debug disabled
         eventHistory.push(event);
-        if (eventHistory.length > 8) {
+        if (eventHistory.length > 13) {
           eventHistory.shift(); // Remove oldest
         }
         debugText.text = `${debugInfo}\n${eventHistory.join('\n')}`;
