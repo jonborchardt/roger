@@ -216,13 +216,6 @@ export default function App() {
         const texW = bgTexture.width;
         const texH = bgTexture.height;
 
-        // Debug: log dimensions
-        console.log('[Layout]', {
-          renderer: { w, h },
-          texture: { texW, texH },
-          bgAnchor: { x: bg.anchor.x, y: bg.anchor.y }
-        });
-
         // Calculate scale for both dimensions
         const scaleX = w / texW;
         const scaleY = h / texH;
@@ -230,15 +223,11 @@ export default function App() {
         // Use Math.max to ensure background covers entire screen (like CSS background-size: cover)
         const scale = Math.max(scaleX, scaleY);
 
-        console.log('[Layout] Scales:', { scaleX, scaleY, finalScale: scale });
-
         // Apply uniform scale to maintain aspect ratio
         bg.scale.set(scale, scale);
 
         // Center the background (anchor is 0.5, 0.5)
         bg.position.set(w / 2, h / 2);
-
-        console.log('[Layout] BG position:', { x: bg.position.x, y: bg.position.y });
 
         const topMargin = 20;
         titleText.position.set(w / 2, topMargin);
