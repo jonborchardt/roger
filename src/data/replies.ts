@@ -159,4 +159,254 @@ export const replies = {
     'He was abducted as punishment for interfering with a previous plot. He escaped a labor-planet disaster, infiltrated a base, and ended the threat by sabotaging life support.',
   rogerMood:
     'Roger is not a confident hero. He is persistent, anxious, and stubbornly alive. Courage shows up when panic stops being useful.',
+
+  // Extended look commands
+  lookCablesPlugged:
+    'The cables are plugged in now. The machine hum changed pitch. Something is listening.',
+  lookStainsWiped:
+    'You wiped the stains. They faded but did not vanish. The wall remembers anyway.',
+  lookSymbolsWiped:
+    'You cleaned the symbols. Dust is gone. A faint panel seam is now visible underneath.',
+  lookMachinePoweredDown:
+    'The machine is silent. The blue glow is dead. You made a choice.',
+  lookPanelSeamVisible:
+    'A narrow seam outlines a hidden panel in the wall. It was under the symbols the whole time.',
+  lookGlowFlicker:
+    'The blue glow flickers like a nervous tell. Power is unstable.',
+  lookCoupling:
+    'The coupling socket is designed for a cylinder and a latch. It looks specific and unforgiving.',
+  lookUnder:
+    'You peer under debris and crates. Grit, shadows, and nothing you want to meet.',
+  lookBehind:
+    'You look behind the pillar and crates. More rubble, dust, and disappointment.',
+  lookSelf:
+    'You are still here. Still upright. Still making choices. The bay does not congratulate you.',
+
+  // Smell commands
+  smellArchway:
+    'The archway exhales cooler air tinged with rust and old machinery. Not inviting.',
+  smellSlime:
+    'The slime smells chemical and faintly organic. You wish you had not checked.',
+  smellRubble:
+    'Dust, metal shavings, and the ghost of welding fumes. The bay is a relic.',
+  smellVents:
+    'The vents smell like old air filters and neglect. Circulation exists, barely.',
+  smellDisc:
+    'The red disc smells like machine oil and purpose. It has been handled before.',
+
+  // Listen commands
+  listenArchway:
+    'From the archway: a faint draft, distant drips, and the suggestion of worse acoustics.',
+  listenMachineHum:
+    'The machine hums with a low, steady pulse. It is doing something. You are not sure what.',
+  listenMachineSilent:
+    'The machine is silent now. No hum, no glow. Just dead weight and your choices.',
+
+  // Touch commands
+  touchGlow:
+    'You reach toward the blue glow. It is warm, not hot. The machine does not appreciate your curiosity.',
+  touchDisc:
+    'The red disc is heavy, smooth, and cool. It feels engineered. Precise. Expensive.',
+  touchCables:
+    'The cables are thick and coated in grime. They still carry current. You feel the hum.',
+
+  // Movement commands
+  run: 'You run in place briefly. The bay does not care. Your heart rate does.',
+  crouch:
+    'You crouch low. The perspective changes. The rubble looks bigger. You feel smaller.',
+  hide: 'You duck behind debris. Nothing is hunting you yet. The bay finds your paranoia charming.',
+  climbPillar:
+    'You try to climb the central pillar. It is smooth, vertical, and uninterested in your ambition.',
+  climbWall:
+    'You attempt to climb the wall. The panels are flush and offer no grip. Gravity wins.',
+  climbCrate:
+    'You try to climb onto the blue crate. It is bolted down and mocks your effort.',
+
+  // Search/Scan/Read commands
+  searchCrate:
+    'You search around the blue crate. Dust, grit, and a faint outline where it was welded to the floor.',
+  searchArea:
+    'You search the general area. Rubble, scrap, old stains, and the persistent feeling of being watched by geometry.',
+  scanArchway:
+    'You scan the archway frame. Blue metal, no controls, no damage. Just an exit that knows more than you.',
+  scanPanel:
+    'You scan the wall panel. Flush seams, faint scuff marks, and the vibe of a system that punishes guessing.',
+  readPanel:
+    'You try to read the panel. No labels, no instructions. Just the silent judgment of bad design.',
+  readStains:
+    'You try to interpret the stains. They tell a story of spills, heat, and regret. Not helpful.',
+
+  // Clean commands
+  cleanStains:
+    'You rub at the green and orange stains. They smear but do not vanish. The wall is stained in principle now.',
+  cleanSymbolsReveal:
+    'You wipe the symbols clean. Dust falls away. A hidden panel seam is now visible beneath.',
+  cleanSymbols:
+    'You clean the wall symbols. They are easier to read now, but still cryptic and technical.',
+  cleanPanel:
+    'You wipe the panel surface. Grime comes off on your hand. The panel still does not open.',
+  cleanVents:
+    'You clear dust from the vent slats. Air flow improves slightly. The bay breathes easier. You do not.',
+
+  // Open/Close commands
+  openArchway:
+    'The archway is already open. It frames darkness and the promise of worse navigation.',
+  closeArchway:
+    'You cannot close the archway. It has no door, no seal, and no interest in your anxiety.',
+  openPanelSeam:
+    'You try to pry open the panel seam. It resists. You need leverage or a key.',
+  openPanel:
+    'You attempt to open the panel. It is locked, welded, or just stubborn. You are not sure which.',
+  openCrate:
+    'You try to open the blue crate. It has no visible latch or hinge. It is a sealed mystery.',
+  openMachine:
+    'You try to open the machine casing. It is bolted shut. The blue glow stares at you.',
+  closePanel:
+    'The panel is already closed. Or locked. Or just philosophically opposed to you.',
+  closeCrate:
+    'The crate does not open, so closing it is redundant. The bay appreciates your effort anyway.',
+
+  // Push/Pull/Lift commands
+  pushCrate:
+    'You push the blue crate. It does not move. Bolted down or just hateful. Hard to say.',
+  pullCrate:
+    'You pull at the blue crate. It ignores you. The bay finds your optimism refreshing.',
+  moveCrate:
+    'You try to move the crate. It is welded to the floor. The floor wins.',
+  pushMachine:
+    'You push against the machine. It is bolted to the wall and hums smugly at you.',
+  pullCables:
+    'You tug at the cables. They shift but stay connected. Unplugging them might be wiser.',
+  pushPanel:
+    'You push the wall panel. It does not budge. Either locked or just committed to being a wall.',
+  pullRubble:
+    'You pull at rubble. It shifts, clatters, and reveals more rubble. The bay is consistent.',
+  liftDebris:
+    'You lift a fragment of debris. It is heavy, sharp, and useless. You set it back down.',
+
+  // Take commands (failures)
+  takeMachine:
+    'You try to take the machine. It is bolted to the wall and powered. It is not portable.',
+  takePanel:
+    'You cannot take the wall panel. It is part of the wall. The wall is not negotiable.',
+  takeWall:
+    'You try to take the wall. The wall declines. You reconsider your approach to problem-solving.',
+  takePipes:
+    'The pipes are welded in place and probably pressurized. Taking them would be loud and final.',
+  takeCables:
+    'You try to take the cables. They are plugged in, heavy, and committed to their current role.',
+  takeSlime:
+    'You try to scoop up the slime. It is viscous, unpleasant, and not something you want in your pockets.',
+  takeDebris:
+    'You pick up a fragment of debris. It is sharp, useless, and immediately regrettable. You drop it.',
+
+  // Throw commands
+  throwDiscAtMachine:
+    'You throw the red disc at the machine. It clangs loudly. The machine does not flinch. You feel less confident.',
+  throwDiscAtArchway:
+    'You throw the red disc toward the archway. It bounces, rolls, and stops in the rubble. The archway is unimpressed.',
+  throwDiscAtPanel:
+    'You throw the red disc at the wall panel. It hits with a metallic clang and falls. The panel remains sealed.',
+  throwCylinder:
+    'You throw the silver cylinder. It clatters across the floor and stops. You now have to go get it.',
+  throwNothing:
+    'You mime throwing something. The bay does not react. Your performance needs work.',
+
+  // Kick commands
+  kickCrate:
+    'You kick the blue crate. It is bolted down. Your foot regrets the impulse.',
+  kickMachine:
+    'You kick the machine. It hums louder. You have made an enemy.',
+  kickWall:
+    'You kick the wall. The wall wins. Your foot loses. Physics remains undefeated.',
+
+  // Use commands
+  useDiscOnCrate:
+    'You try using the red disc on the blue crate. Nothing clicks. Wrong tool, wrong target.',
+  pryWithDisc:
+    'You try to pry things open with the red disc. It is heavy but not shaped for leverage. No progress.',
+  useDiscHint:
+    'The red disc is heavy and precise. It looks like a component, not a tool. Find where it fits.',
+  useCylinderHint:
+    'The silver cylinder looks like a cartridge. The machine coupling might accept it.',
+
+  // Smash/Break commands
+  smashMachine:
+    'You try to smash the machine. It is bolted, powered, and unimpressed. You lack the tools and the confidence.',
+  smashPanel:
+    'You try to smash the wall panel. It is flush and solid. You hurt your hand more than the panel.',
+  smashWall:
+    'You try to smash the wall. The wall is metal plating over structure. You are flesh. The wall wins.',
+  smashCrate:
+    'You try to smash the blue crate. It is durable, bolted down, and built to outlast your tantrum.',
+  smashLights:
+    'You consider smashing the ceiling lights. They are too high, and darkness would not improve your situation.',
+  smashDisc:
+    'You try to smash the red disc. It is solid, heavy, and engineered. You fail to damage it.',
+
+  // Rub/Smear commands
+  rubSlimeOnMachine:
+    'You smear slime on the machine. It glistens there, gross and pointless. The machine does not thank you.',
+  rubSlimeOnPanel:
+    'You rub slime on the wall panel. It leaves a streak. You have made the bay marginally worse.',
+  rubSlimeOnWall:
+    'You smear slime on the wall. It joins the existing stains. The wall now has more character.',
+  rubStains:
+    'You rub at the stains with your hand. They smear. Your hand is now part of the problem.',
+
+  // Toggle/Flip/Turn commands
+  toggleLights:
+    'You try to toggle the ceiling lights. They are controlled elsewhere. You lack a switch.',
+  toggleMachineOff:
+    'You power down the machine. The blue glow dies. The hum stops. Silence feels heavier.',
+  toggleMachineOn:
+    'You power up the machine. The blue glow returns. The hum resumes. Something is listening again.',
+  turnDisc:
+    'You try turning the red disc. It does not rotate or have any mechanism. It is just a disc.',
+  turnCylinder:
+    'You twist the silver cylinder. It does not rotate or unscrew. It is a sealed cartridge.',
+
+  // Plug/Unplug commands
+  plugCables:
+    'You plug the loose cables into nearby sockets. The machine hum deepens. The blue glow steadies.',
+  unplugCables:
+    'You unplug the cables. The machine hum falters. The blue glow flickers nervously.',
+  plugMachine:
+    'You try plugging things into the machine. The coupling needs a cartridge and latch, not random cables.',
+
+  // Shake commands
+  shakeCrate:
+    'You shake the blue crate. It does not move or rattle. Bolted, sealed, or just stubborn.',
+  shakeDisc:
+    'You shake the red disc. It is solid and does not rattle. No hidden parts, no surprises.',
+  shakeCylinder:
+    'You shake the silver cylinder. It is sealed and does not rattle. Whatever is inside is staying there.',
+
+  // Approach/Enter commands
+  approachMachine:
+    'You move closer to the machine. The blue glow is brighter up close. The hum is deeper.',
+
+  enterMachine:
+    'You try to enter the machine. It is a bulky panel system, not a doorway. You are too ambitious.',
+
+  // Social commands
+  talkSelf:
+    'You talk to yourself. You offer no new insights. The bay listens with detached curiosity.',
+  talkMachine:
+    'You address the machine. It hums in response, which is either acknowledgment or coincidence.',
+  talkArchway:
+    'You speak toward the archway. Your voice echoes faintly. No one answers. No one ever does.',
+  shout:
+    'You shout. Your voice bounces off metal walls and dies in rubble. The bay absorbs your frustration.',
+  swear:
+    'You let loose a string of profanity. The bay has heard worse. You feel slightly better anyway.',
+
+  // Player action commands
+  sit: 'You sit down on the cold floor. The grit is uncomfortable. You stand back up quickly.',
+  sleep:
+    'You try to sleep. The floor is cold, the lights are bright, and your survival instinct objects loudly.',
+  pray: 'You pray. The bay remains indifferent. No divine intervention arrives. You are still on your own.',
+  dance:
+    'You dance briefly. The bay does not applaud. Your rhythm is fine, but your audience is rubble.',
+  sing: 'You sing a few bars. Your voice echoes flatly. The bay does not request an encore.',
 };

@@ -58,6 +58,25 @@ export type SceneFlags = {
   panelUnlocked?: boolean;
   machineRepaired?: boolean;
   archwaySafe?: boolean;
+
+  // Extended Scene 2 flags
+  hiddenPanelSeamVisible?: boolean;
+  gritSwept?: boolean;
+  symbolsWiped?: boolean;
+  stainsWiped?: boolean;
+  ventsDusty?: boolean;
+  cablesPlugged?: boolean;
+  machinePoweredDown?: boolean;
+  lightsToggled?: boolean;
+  pillarExamined?: boolean;
+  rubbleSearched?: boolean;
+  crateExamined?: boolean;
+  discThrown?: boolean;
+  slimeTouched?: boolean;
+  playerSat?: boolean;
+  playerPrayed?: boolean;
+  playerShouted?: boolean;
+  glowStable?: boolean;
 };
 
 // ==================== Rule Engine Types ====================
