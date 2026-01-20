@@ -208,6 +208,12 @@ export default function App() {
 
       // Layout function
       function updateLayout() {
+        // Ensure renderer matches host element size
+        if (host) {
+          const rect = host.getBoundingClientRect();
+          app.renderer.resize(rect.width, rect.height);
+        }
+
         const w = app.renderer.width;
         const h = app.renderer.height;
 
