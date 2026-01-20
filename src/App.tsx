@@ -211,22 +211,24 @@ export default function App() {
         const w = app.renderer.width;
         const h = app.renderer.height;
 
-        // Scale background to cover entire screen while maintaining aspect ratio
+        // Keep 10px padding on all sides
+        const pad = 10;
+        const availableW = w - pad * 2;
+        const availableH = h - pad * 2;
+
         // Get original texture dimensions
         const texW = bgTexture.width;
         const texH = bgTexture.height;
 
-        // Calculate scale for both dimensions
-        const scaleX = w / texW;
-        const scaleY = h / texH;
+        // Calculate scale to FIT image inside viewport (contain, not cover)
+        const scaleX = availableW / texW;
+        const scaleY = availableH / texH;
+        const scale = Math.min(scaleX, scaleY); // Use MIN to keep entire image visible
 
-        // Use Math.max to ensure background covers entire screen (like CSS background-size: cover)
-        const scale = Math.max(scaleX, scaleY);
-
-        // Apply uniform scale to maintain aspect ratio
+        // Apply scale
         bg.scale.set(scale, scale);
 
-        // Center the background (anchor is 0.5, 0.5)
+        // Center the background (anchor is already 0.5, 0.5)
         bg.position.set(w / 2, h / 2);
 
         const topMargin = 20;
