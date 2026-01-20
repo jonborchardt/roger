@@ -117,16 +117,27 @@ export default function App() {
       debugText.anchor.set(0, 0);
       stage.addChild(debugText);
 
-      // Always show build timestamp
+      // Build time display (always visible, lower left)
+      const buildTime = import.meta.env.VITE_BUILD_TIME || 'dev';
+      const buildTimeText = new Text({
+        text: `Build: ${buildTime}`,
+        style: {
+          fontFamily: 'Courier New, monospace',
+          fontSize: 12,
+          fill: 0x888888,
+          align: 'left',
+        },
+      });
+      buildTimeText.anchor.set(0, 1); // Bottom-left anchor
+      stage.addChild(buildTimeText);
+
+      // Debug mode toggle
       const DEBUG_MODE = false;
 
       // Check browser capabilities and display
       const hasGetUserMedia = !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
       const hasSpeechRecognition = !!((window as any).SpeechRecognition || (window as any).webkitSpeechRecognition);
       const hasSpeechSynthesis = !!('speechSynthesis' in window);
-
-      // Build timestamp for cache verification
-      const buildTime = import.meta.env.VITE_BUILD_TIME || 'dev';
 
       let debugInfo = `Build:${buildTime} APIs:M=${hasGetUserMedia?'Y':'N'} S=${hasSpeechRecognition?'Y':'N'} T=${hasSpeechSynthesis?'Y':'N'} H=${window.location.protocol==='https:'?'Y':'N'}`;
 
@@ -244,6 +255,9 @@ export default function App() {
         transcriptText.position.set(20, topMargin + 60);
         responseText.position.set(20, topMargin + 90);
         debugText.position.set(20, topMargin + 120);
+
+        // Position build time in lower left corner
+        buildTimeText.position.set(10, h - 10);
 
         const dotY = h - 50;
         recordButton.position.set(w / 2, dotY);
